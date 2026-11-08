@@ -2,7 +2,7 @@
 
 A mobile-friendly multiple-choice reviewer for Mythology & Folklore (Midterms 2).
 
-- 390 questions, split into 9 topics (one per page of notes) plus a mixed Overall mode
+- 434 questions, split into 10 topics (one per page of notes) plus a mixed Overall mode
 - Switch topics any time; progress saves on your device
 
 ## Files

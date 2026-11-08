@@ -285,9 +285,10 @@ if (!["home", "quiz"].includes(S.view)) S.view = "home";
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 
 const topicById = id => BANK.find(t => t.id === id);
-const getQ = ref => { const t = BANK[ref[0]]; const q = t && t.qs[ref[1]]; return q ? { t, q: q[0], a: q[1], w: q[2], note: q[3] } : null; };
-const refsFor = id => { const ti = BANK.findIndex(t => t.id === id); return BANK[ti].qs.map((_, qi) => [ti, qi]); };
-const allRefs = () => BANK.flatMap((t, ti) => t.qs.map((_, qi) => [ti, qi]));
+/* a question ref is [topic id, question index], so adding or reordering topics keeps saved progress valid */
+const getQ = ref => { const t = topicById(ref[0]); const q = t && t.qs[ref[1]]; return q ? { t, q: q[0], a: q[1], w: q[2], note: q[3] } : null; };
+const refsFor = id => topicById(id).qs.map((_, qi) => [id, qi]);
+const allRefs = () => BANK.flatMap(t => t.qs.map((_, qi) => [t.id, qi]));
 const newSession = (refs, retry) => ({ refs: S.shuffle ? shuffle(refs) : refs, pos: 0, score: 0, ans: {}, opts: {}, retry: !!retry, done: false });
 const pctClass = p => p >= 75 ? "good" : "";
 
@@ -436,7 +437,7 @@ function resultHTML(s) {
   let breakdown = "";
   if (S.current === ALL) {
     const per = {};
-    s.refs.forEach((r, i) => { const t = BANK[r[0]]; per[t.id] ??= { t, n: 0, ok: 0 }; per[t.id].n++; if (s.ans[i] === getQ(r).a) per[t.id].ok++; });
+    s.refs.forEach((r, i) => { const t = topicById(r[0]); per[t.id] ??= { t, n: 0, ok: 0 }; per[t.id].n++; if (s.ans[i] === getQ(r).a) per[t.id].ok++; });
     breakdown = `<section class="panel"><h3>Score by page</h3>${Object.values(per).sort((a, b) => a.t.page - b.t.page).map(p => {
       const v = Math.round(p.ok / p.n * 100);
       return `<div class="crow"><span>p.${p.t.page} ${esc(p.t.title)}</span><span class="v">${v}%</span><span class="b"><i style="width:${v}%"></i></span></div>`;
